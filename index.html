@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f6f3" />
+    <title>TrackLaura | Meta Campaign Intelligence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand-lockup">
+          <div class="brand-mark">TL</div>
+          <div>
+            <div class="brand-name">TrackLaura</div>
+            <div class="brand-caption">META INTELLIGENCE</div>
+          </div>
+        </div>
+
+        <nav class="main-nav" aria-label="Navegación principal">
+          <a class="nav-item active" href="#overview"><span class="nav-icon">◫</span>Resumen</a>
+          <a class="nav-item" href="#campaigns"><span class="nav-icon">⌁</span>Campañas</a>
+        </nav>
+
+        <div class="account-nav" aria-label="Cuentas publicitarias de Laura">
+          <p class="sidebar-section-label">CUENTAS DE LAURA</p>
+          <button class="account-option active" data-account="Iam light"><span class="account-avatar">IL</span><span><strong>Iam light</strong><small>Cuenta publicitaria</small></span><i>✓</i></button>
+          <button class="account-option" data-account="Sculptor clinic"><span class="account-avatar sculptor">SC</span><span><strong>Sculptor clinic</strong><small>Cuenta publicitaria</small></span><i>✓</i></button>
+        </div>
+
+        <div class="sidebar-footer">
+          <div class="connection-status"><span class="status-dot"></span><span id="connectionLabel">Meta Ads · modo demo</span></div>
+        </div>
+      </aside>
+
+      <main class="main-content" id="overview">
+        <header class="topbar">
+          <div class="breadcrumb"><span>Workspace</span><b>/</b><strong>Resumen</strong></div>
+          <div class="topbar-actions">
+            <button class="icon-button" aria-label="Notificaciones">♧<span class="notification-dot"></span></button>
+            <div class="user-avatar">LH</div>
+          </div>
+        </header>
+
+        <section class="page-heading">
+          <div>
+            <p class="eyebrow">CENTRO DE CONTROL · <span id="dateHeading">SEPTIEMBRE 2024</span></p>
+            <h1>Hola, Laura <span class="wave">✦</span></h1>
+            <p class="heading-note">El rendimiento de tus campañas, en una sola mirada.</p>
+          </div>
+          <div class="date-control date-controls">
+            <span class="calendar-icon">▣</span>
+            <select id="dateRange" aria-label="Rango de fechas">
+              <option value="7">Últimos 7 días</option>
+              <option value="14">Últimos 14 días</option>
+              <option value="30">Últimos 30 días</option>
+              <option value="today">Hoy</option>
+              <option value="custom">Personalizado</option>
+            </select>
+            <span class="select-arrow">⌄</span>
+            <div class="custom-dates" id="customDates" hidden>
+              <label>Desde <input id="dateStart" type="date" value="2024-09-02" /></label>
+              <span>→</span>
+              <label>Hasta <input id="dateEnd" type="date" value="2024-09-08" /></label>
+              <button id="applyDates" type="button">Aplicar</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="metric-grid" aria-label="Métricas generales">
+          <article class="metric-card featured">
+            <div class="metric-top"><span class="metric-label">LEADS TOTALES</span><span class="metric-icon">↗</span></div>
+            <div class="metric-value" id="totalLeads">1,284</div>
+            <div class="metric-bottom"><span class="trend positive">↑ 18.6%</span><span class="comparison">vs. periodo anterior</span></div>
+            <div class="sparkline teal"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-top"><span class="metric-label">COSTO POR LEAD</span><span class="metric-icon muted">◉</span></div>
+            <div class="metric-value">$8.42</div>
+            <div class="metric-bottom"><span class="trend positive">↓ 7.2%</span><span class="comparison">vs. periodo anterior</span></div>
+            <div class="metric-progress"><span style="width: 72%"></span></div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-top"><span class="metric-label">INVERSIÓN</span><span class="metric-icon muted">◌</span></div>
+            <div class="metric-value">$10,817</div>
+            <div class="metric-bottom"><span class="trend neutral">→ 2.1%</span><span class="comparison">vs. periodo anterior</span></div>
+            <div class="metric-progress coral"><span style="width: 58%"></span></div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-top"><span class="metric-label">MEDIA DE LEADS / DÍA</span><span class="metric-icon muted">◎</span></div>
+            <div class="metric-value" id="dailyLeads">183</div>
+            <div class="metric-bottom"><span class="trend positive">↑ 11.4%</span><span class="comparison">vs. periodo anterior</span></div>
+            <div class="metric-progress lime"><span style="width: 82%"></span></div>
+          </article>
+        </section>
+
+        <section class="analytics-grid">
+          <article class="panel chart-panel">
+            <div class="panel-header">
+              <div><p class="eyebrow">VOLUMEN DIARIO</p><h2>Leads generados</h2></div>
+              <div class="chart-legend"><span><i class="legend-dot leads-dot"></i>Leads</span><span><i class="legend-dot spend-dot"></i>Inversión</span></div>
+            </div>
+            <div class="chart-wrap">
+              <div class="y-axis"><span>250</span><span>200</span><span>150</span><span>100</span><span>50</span><span>0</span></div>
+              <div class="chart-area">
+                <div class="grid-lines"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                <svg class="chart-svg" viewBox="0 0 800 260" preserveAspectRatio="none" aria-label="Gráfico de leads por día">
+                  <defs><linearGradient id="areaFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#00a99d" stop-opacity=".22"/><stop offset="1" stop-color="#00a99d" stop-opacity="0"/></linearGradient></defs>
+                  <path class="chart-area-fill" d="M0,190 C40,180 54,198 92,162 S150,175 182,140 S220,154 252,132 S300,150 330,100 S380,125 410,108 S450,126 485,85 S525,112 560,92 S595,104 630,64 S680,83 710,48 S760,66 800,30 L800,260 L0,260 Z" />
+                  <path class="chart-line secondary-line" d="M0,220 C55,214 60,226 112,198 S180,210 225,187 S290,197 332,175 S390,190 430,164 S488,177 530,149 S590,166 630,133 S700,147 760,118 S780,121 800,105" />
+                  <path class="chart-line main-line" d="M0,190 C40,180 54,198 92,162 S150,175 182,140 S220,154 252,132 S300,150 330,100 S380,125 410,108 S450,126 485,85 S525,112 560,92 S595,104 630,64 S680,83 710,48 S760,66 800,30" />
+                  <circle cx="630" cy="64" r="5" class="chart-point"/><circle cx="800" cy="30" r="5" class="chart-point"/>
+                </svg>
+                <div class="x-axis"><span>02 SEP</span><span>03 SEP</span><span>04 SEP</span><span>05 SEP</span><span>06 SEP</span><span>07 SEP</span><span>08 SEP</span></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel conversion-panel" id="accountsSummary">
+            <div class="panel-header"><div><p class="eyebrow">CUENTAS PUBLICITARIAS</p><h2>Leads por cuenta</h2></div><span class="total-badge">2 cuentas</span></div>
+            <div class="account-summary">
+              <div class="summary-line"><div><span class="summary-account">Iam light</span><small>Cuenta seleccionada</small></div><strong>642</strong></div>
+              <div class="summary-track"><span style="width: 72%"></span></div>
+              <div class="summary-line"><div><span class="summary-account">Sculptor clinic</span><small>Cuenta publicitaria</small></div><strong>642</strong></div>
+              <div class="summary-track"><span style="width: 72%"></span></div>
+            </div>
+            <div class="conversion-foot"><span>Total de leads en el periodo</span><b>1,284</b></div>
+          </article>
+        </section>
+
+        <section class="panel campaigns-panel" id="campaigns">
+          <div class="panel-header campaigns-heading"><div><p class="eyebrow">DESGLOSE DE RENDIMIENTO</p><h2>Campañas activas</h2></div><div class="table-actions"><div class="search-box"><span>⌕</span><input id="campaignSearch" type="search" placeholder="Buscar campaña" aria-label="Buscar campaña" /></div><button class="export-button" id="exportButton">↓ <span>Exportar</span></button></div></div>
+          <div class="filter-row"><button class="filter active" data-filter="all">Todas <span>3</span></button><span class="lead-only-note">Todas las campañas están optimizadas para captación de leads</span><span class="date-note">Datos atribuidos según ventana de Ads Manager · 7 días</span></div>
+          <div class="table-scroll"><table><thead><tr><th>CAMPAÑA</th><th>TIPO DE CONVERSIÓN</th><th>IMPRESIONES</th><th>RESULTADOS</th><th>COSTO / RESULTADO</th><th>INVERSIÓN</th><th>ESTADO</th><th></th></tr></thead><tbody id="campaignRows"></tbody></table></div>
+        </section>
+        <footer class="footer-note"><span>Última sincronización: hace 12 min</span><span><i class="status-dot"></i> Cuenta sincronizada con Meta Ads</span></footer>
+      </main>
+    </div>
+    <div class="toast" id="toast" role="status">Preparando exportación...</div>
+    <script src="app.js"></script>
+  </body>
+</html>

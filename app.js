@@ -1,0 +1,167 @@
+const accountData = {
+  'Iam light': {
+    leads: '642', cpl: '$5.84', spend: '$3,750', daily: '92', campaigns: [
+      { name: 'Lead Magnet · Guía de hábitos', conversion: 'Formulario instantáneo', impressions: '428,602', leads: '642', cpl: '$5.84', spend: '$3,750', symbol: '↗', tone: '' },
+      { name: 'Masterclass gratuita', conversion: 'Registro de evento', impressions: '187,492', leads: '283', cpl: '$6.18', spend: '$1,749', symbol: '✦', tone: 'yellow' },
+      { name: 'Checklist · Captación Q3', conversion: 'Formulario instantáneo', impressions: '74,920', leads: '35', cpl: '$25.03', spend: '$876', symbol: '↗', tone: '' }
+    ]
+  },
+  'Sculptor clinic': {
+    leads: '642', cpl: '$7.16', spend: '$4,594', daily: '92', campaigns: [
+      { name: 'Consulta inicial · Tratamientos', conversion: 'Formulario instantáneo', impressions: '390,210', leads: '421', cpl: '$6.84', spend: '$2,879', symbol: '✦', tone: '' },
+      { name: 'Valoración gratuita', conversion: 'Formulario instantáneo', impressions: '208,430', leads: '176', cpl: '$7.92', spend: '$1,394', symbol: '◈', tone: 'coral' },
+      { name: 'Guía de cuidados', conversion: 'Formulario instantáneo', impressions: '86,105', leads: '45', cpl: '$7.13', spend: '$321', symbol: '↗', tone: 'yellow' }
+    ]
+  }
+};
+
+const rows = document.querySelector('#campaignRows');
+const search = document.querySelector('#campaignSearch');
+const toast = document.querySelector('#toast');
+let activeAccount = 'Iam light';
+let dataSource = 'demo';
+
+const formatNumber = (value) => new Intl.NumberFormat('en-US').format(Number(value || 0));
+const formatMoney = (value) => `$${Number(value || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+function currentCampaigns() {
+  return accountData[activeAccount].campaigns;
+}
+
+function applyAccountData(data) {
+  accountData[activeAccount] = {
+    ...accountData[activeAccount],
+    leads: formatNumber(data.totals.leads),
+    cpl: formatMoney(data.totals.cpl),
+    spend: formatMoney(data.totals.spend),
+    daily: formatNumber(Math.round(Number(data.totals.leads || 0) / Math.max(getSelectedDays(), 1))),
+    campaigns: data.campaigns.map((campaign) => ({
+      ...campaign,
+      impressions: formatNumber(campaign.impressions),
+      leads: formatNumber(campaign.leads),
+      cpl: formatMoney(campaign.cpl),
+      spend: formatMoney(campaign.spend)
+    }))
+  };
+  const current = accountData[activeAccount];
+  document.querySelector('#totalLeads').textContent = current.leads;
+  document.querySelector('#dailyLeads').textContent = current.daily;
+  document.querySelector('.metric-card:nth-child(2) .metric-value').textContent = current.cpl;
+  document.querySelector('.metric-card:nth-child(3) .metric-value').textContent = current.spend;
+  renderCampaigns();
+}
+
+function getSelectedDays() {
+  const range = document.querySelector('#dateRange').value;
+  if (range !== 'custom') return range === 'today' ? 1 : Number(range);
+  const start = new Date(`${document.querySelector('#dateStart').value}T12:00:00`);
+  const end = new Date(`${document.querySelector('#dateEnd').value}T12:00:00`);
+  return Math.round((end - start) / 86400000) + 1;
+}
+
+async function loadMetaInsights() {
+  const params = new URLSearchParams({ account: activeAccount });
+  const range = document.querySelector('#dateRange').value;
+  if (range === 'custom') {
+    params.set('date_start', document.querySelector('#dateStart').value);
+    params.set('date_end', document.querySelector('#dateEnd').value);
+  } else {
+    params.set('days', range === 'today' ? '1' : range);
+  }
+
+  try {
+    const response = await fetch(`/api/meta-insights?${params}`);
+    if (!response.ok) throw new Error('Meta no está configurado todavía');
+    const data = await response.json();
+    if (data.demo || data.source !== 'meta') throw new Error('Modo demo');
+    applyAccountData(data);
+    dataSource = 'meta';
+    document.querySelector('#connectionLabel').textContent = 'Meta Ads · datos en vivo';
+  } catch {
+    dataSource = 'demo';
+    document.querySelector('#connectionLabel').textContent = 'Meta Ads · modo demo';
+  }
+}
+
+function renderCampaigns() {
+  const searchTerm = search.value.trim().toLowerCase();
+  const visibleCampaigns = currentCampaigns().filter((campaign) => {
+    return `${campaign.name} ${campaign.conversion}`.toLowerCase().includes(searchTerm);
+  });
+
+  rows.innerHTML = visibleCampaigns.length
+    ? visibleCampaigns.map((campaign) => `
+      <tr>
+        <td><div class="campaign-name"><span class="campaign-symbol ${campaign.tone}">${campaign.symbol}</span>${campaign.name}</div></td>
+        <td><span class="conversion-tag">${campaign.conversion}</span></td>
+        <td class="number">${campaign.impressions}</td>
+        <td class="number">${campaign.leads} <small class="result-label">Leads</small></td>
+        <td class="number">${campaign.cpl} <small class="result-label">CPL</small></td>
+        <td class="number">${campaign.spend}</td>
+        <td><span class="status">Activa</span></td>
+        <td><button class="row-menu" aria-label="Opciones para ${campaign.name}">•••</button></td>
+      </tr>`).join('')
+    : '<tr><td colspan="8" class="empty-state">No encontramos campañas con esos filtros.</td></tr>';
+}
+
+search.addEventListener('input', renderCampaigns);
+
+document.querySelector('#dateRange').addEventListener('change', (event) => {
+  const rangeLabels = { '7': '7 días', '14': '14 días', '30': '30 días', today: 'hoy', custom: 'periodo personalizado' };
+  document.querySelector('.date-note').textContent = `Datos atribuidos según ventana de Ads Manager · ${rangeLabels[event.target.value]}`;
+  document.querySelector('#customDates').hidden = event.target.value !== 'custom';
+  showToast(`Rango actualizado: ${rangeLabels[event.target.value]}`);
+  if (event.target.value !== 'custom') loadMetaInsights();
+});
+
+document.querySelector('#applyDates').addEventListener('click', () => {
+  const start = document.querySelector('#dateStart').value;
+  const end = document.querySelector('#dateEnd').value;
+  if (!start || !end || start > end) {
+    showToast('Revisa las fechas seleccionadas');
+    return;
+  }
+  const format = (date) => new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: 'short' }).format(new Date(`${date}T12:00:00`)).toUpperCase();
+  document.querySelector('.date-note').textContent = `Datos atribuidos según ventana de Ads Manager · ${format(start)} – ${format(end)}`;
+  document.querySelector('#dateHeading').textContent = `${format(start)} – ${format(end)}`;
+  showToast('Periodo personalizado aplicado');
+  loadMetaInsights();
+});
+
+document.querySelectorAll('.account-option').forEach((option) => {
+  option.addEventListener('click', () => {
+    activeAccount = option.dataset.account;
+    const data = accountData[activeAccount];
+    document.querySelector('#totalLeads').textContent = data.leads;
+    document.querySelector('#dailyLeads').textContent = data.daily;
+    document.querySelector('.metric-card:nth-child(2) .metric-value').textContent = data.cpl;
+    document.querySelector('.metric-card:nth-child(3) .metric-value').textContent = data.spend;
+    document.querySelectorAll('.account-option').forEach((item) => item.classList.toggle('active', item === option));
+    renderCampaigns();
+    showToast(`Cuenta activa: ${activeAccount}`);
+    loadMetaInsights();
+  });
+});
+
+document.querySelector('#exportButton').addEventListener('click', () => {
+  const headers = ['Cuenta', 'Campaña', 'Tipo de conversión', 'Impresiones', 'Leads', 'CPL', 'Inversión'];
+  const csv = [headers, ...currentCampaigns().map((campaign) => [activeAccount, campaign.name, campaign.conversion, campaign.impressions, campaign.leads, campaign.cpl, campaign.spend])]
+    .map((row) => row.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(','))
+    .join('\n');
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+  link.download = 'tracklaura-campanas.csv';
+  link.click();
+  URL.revokeObjectURL(link.href);
+  showToast('Exportación descargada');
+});
+
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add('show');
+  window.clearTimeout(showToast.timeout);
+  showToast.timeout = window.setTimeout(() => toast.classList.remove('show'), 2400);
+}
+
+renderCampaigns();
+loadMetaInsights();
