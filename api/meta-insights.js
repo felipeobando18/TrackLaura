@@ -5,11 +5,13 @@ const LEAD_ACTION_TYPES = new Set([
   'offsite_conversion.fb_pixel_lead',
   'complete_registration'
 ]);
-const FOLLOWER_ACTION_TYPES = new Set([
-  'follow',
-  'page_follow',
-  'onsite_conversion.page_follow',
-  'like'
+const INSTAGRAM_VISIT_ACTION_TYPES = new Set([
+  'landing_page_view',
+  'page_view',
+  'onsite_conversion.page_view',
+  'instagram_profile_visit',
+  'onsite_conversion.instagram_profile_visit',
+  'offsite_conversion.instagram_profile_visit'
 ]);
 
 function json(res, status, body) {
@@ -33,9 +35,9 @@ function getLeadCount(actions = []) {
     .reduce((total, action) => total + Number(action.value || 0), 0);
 }
 
-function getFollowerCount(actions = []) {
+function getInstagramVisitCount(actions = []) {
   return actions
-    .filter((action) => FOLLOWER_ACTION_TYPES.has(action.action_type))
+    .filter((action) => INSTAGRAM_VISIT_ACTION_TYPES.has(action.action_type))
     .reduce((total, action) => total + Number(action.value || 0), 0);
 }
 
@@ -97,18 +99,18 @@ module.exports = async function handler(req, res) {
 
     const campaigns = (payload.data || []).map((row) => {
       const leads = getLeadCount(row.actions);
-      const isFollowerCampaign = (row.campaign_name || '').toLowerCase().includes('dcontenido');
-      const result = isFollowerCampaign ? getFollowerCount(row.actions) : leads;
-      const cost = isFollowerCampaign
-        ? getCostPerResult(row, result, FOLLOWER_ACTION_TYPES)
+      const isInstagramVisitCampaign = (row.campaign_name || '').toLowerCase().includes('dcontenido');
+      const result = isInstagramVisitCampaign ? getInstagramVisitCount(row.actions) : leads;
+      const cost = isInstagramVisitCampaign
+        ? getCostPerResult(row, result, INSTAGRAM_VISIT_ACTION_TYPES)
         : getCostPerResult(row, result, LEAD_ACTION_TYPES);
       return {
         name: row.campaign_name || 'Campaña sin nombre',
-        conversion: isFollowerCampaign ? 'Captación de seguidores' : 'Captación de leads',
+        conversion: isInstagramVisitCampaign ? 'Visitas al perfil de Instagram' : 'Captación de leads',
         impressions: Number(row.impressions || 0),
         leads: result,
-        resultLabel: isFollowerCampaign ? 'Seguidores' : 'Leads',
-        costLabel: isFollowerCampaign ? 'Costo / seguidor' : 'CPL',
+        resultLabel: isInstagramVisitCampaign ? 'Visitas a Instagram' : 'Leads',
+        costLabel: isInstagramVisitCampaign ? 'Costo / visita' : 'CPL',
         cpl: cost,
         spend: Number(row.spend || 0),
         symbol: '↗',
