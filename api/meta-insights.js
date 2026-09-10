@@ -116,6 +116,7 @@ module.exports = async function handler(req, res) {
         leads: result,
         resultLabel: isInstagramVisitCampaign ? 'Visitas a Instagram' : 'Leads',
         costLabel: isInstagramVisitCampaign ? 'Costo / visita' : 'CPL',
+        isLeadResult: !isInstagramVisitCampaign,
         cpl: cost,
         spend: Number(row.spend || 0),
         symbol: '↗',
@@ -125,7 +126,7 @@ module.exports = async function handler(req, res) {
 
     const totals = campaigns.reduce((sum, campaign) => ({
       impressions: sum.impressions + campaign.impressions,
-      leads: sum.leads + campaign.leads,
+      leads: sum.leads + (campaign.isLeadResult ? campaign.leads : 0),
       spend: sum.spend + campaign.spend
     }), { impressions: 0, leads: 0, spend: 0 });
 
