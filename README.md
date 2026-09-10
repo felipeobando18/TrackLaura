@@ -10,12 +10,13 @@ Añade estas variables en **Vercel > Project Settings > Environment Variables**:
 
 ```env
 META_ACCESS_TOKEN=EAAB...
-META_AD_ACCOUNTS=[{"name":"Iam light","id":"act_123456789"}]
+META_SCULPTOR_ACCESS_TOKEN=EAAB...
+META_AD_ACCOUNTS=[{"name":"Iam light","id":"act_123456789"},{"name":"Sculptor clinic","id":"act_987654321"}]
 ```
 
 `META_ACCESS_TOKEN` debe ser un token de acceso de Meta con permisos de lectura de anuncios, normalmente `ads_read`.
 
-`META_AD_ACCOUNTS` es un JSON en una sola línea. El nombre debe coincidir exactamente con la cuenta mostrada en el menú lateral. Esta app está separada del Business Manager de Sculptor clinic.
+`META_AD_ACCOUNTS` es un JSON en una sola línea. Los nombres deben coincidir exactamente con las cuentas mostradas en el menú lateral. `META_ACCESS_TOKEN` se usa para Iam light y `META_SCULPTOR_ACCESS_TOKEN` para Sculptor clinic.
 
 Después de guardar las variables, haz un nuevo deploy. El indicador del lateral cambiará de `Meta Ads · modo demo` a `Meta Ads · datos en vivo` cuando la consulta funcione.
 

@@ -35,7 +35,10 @@ function getCostPerLead(row, leads) {
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') return json(res, 405, { error: 'Method not allowed' });
 
-  const token = process.env.META_ACCESS_TOKEN;
+  const requestedAccount = req.query.account;
+  const token = requestedAccount === 'Sculptor clinic'
+    ? process.env.META_SCULPTOR_ACCESS_TOKEN
+    : process.env.META_ACCESS_TOKEN;
   const configuredAccounts = process.env.META_AD_ACCOUNTS;
   if (!token || !configuredAccounts) {
     return json(res, 503, { error: 'Meta is not configured', demo: true });
@@ -48,7 +51,6 @@ module.exports = async function handler(req, res) {
     return json(res, 500, { error: 'META_AD_ACCOUNTS must be valid JSON' });
   }
 
-  const requestedAccount = req.query.account;
   const account = accounts.find((item) => item.name === requestedAccount) || accounts[0];
   if (!account?.id) return json(res, 400, { error: 'No advertising account configured' });
 
