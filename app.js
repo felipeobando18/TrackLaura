@@ -63,9 +63,21 @@ function renderChart(daily = demoDaily) {
   areaFill.setAttribute('d', `${leadsPath} L${lastPoint[0].toFixed(1)},${chartHeight} L0,${chartHeight} Z`);
   points.innerHTML = daily.map((item, index) => {
     const [x, y] = toPoint(item.leads, index, maxLeads);
-    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" class="chart-point" />`;
+    const cpl = item.leads ? Number(item.spend || 0) / Number(item.leads) : 0;
+    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5" class="chart-point" data-date="${item.date}" data-spend="${item.spend || 0}" data-leads="${item.leads || 0}" data-cpl="${cpl}" />`;
   }).join('');
   labels.innerHTML = daily.map((item) => `<span>${new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: 'short' }).format(new Date(`${item.date}T12:00:00`)).toUpperCase()}</span>`).join('');
+  const tooltip = document.querySelector('#chartTooltip');
+  const dateFormat = (date) => new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(`${date}T12:00:00`));
+  points.querySelectorAll('.chart-point').forEach((point) => {
+    point.addEventListener('mouseenter', () => {
+      tooltip.innerHTML = `<strong>${dateFormat(point.dataset.date)}</strong><span><b>Inversión</b> ${formatMoney(point.dataset.spend)}</span><span><b>Leads</b> ${formatNumber(point.dataset.leads)}</span><span><b>CPL</b> ${formatMoney(point.dataset.cpl)}</span>`;
+      tooltip.style.left = `${(Number(point.getAttribute('cx')) / chartWidth) * 100}%`;
+      tooltip.style.top = `${Number(point.getAttribute('cy')) - 20}px`;
+      tooltip.classList.add('visible');
+    });
+    point.addEventListener('mouseleave', () => tooltip.classList.remove('visible'));
+  });
 }
 
 function applyAccountData(data) {
@@ -79,6 +91,8 @@ function applyAccountData(data) {
       ...campaign,
       impressions: formatNumber(campaign.impressions),
       leads: formatNumber(campaign.leads),
+      resultLabel: campaign.resultLabel || 'Leads',
+      costLabel: campaign.costLabel || 'CPL',
       cpl: formatMoney(campaign.cpl),
       spend: formatMoney(campaign.spend)
     }))
@@ -137,8 +151,8 @@ function renderCampaigns() {
         <td><div class="campaign-name"><span class="campaign-symbol ${campaign.tone}">${campaign.symbol}</span>${campaign.name}</div></td>
         <td><span class="conversion-tag">${campaign.conversion}</span></td>
         <td class="number">${campaign.impressions}</td>
-        <td class="number">${campaign.leads} <small class="result-label">Leads</small></td>
-        <td class="number">${campaign.cpl} <small class="result-label">CPL</small></td>
+        <td class="number">${campaign.leads} <small class="result-label">${campaign.resultLabel || 'Leads'}</small></td>
+        <td class="number">${campaign.cpl} <small class="result-label">${campaign.costLabel || 'CPL'}</small></td>
         <td class="number">${campaign.spend}</td>
         <td><span class="status">Activa</span></td>
         <td><button class="row-menu" aria-label="Opciones para ${campaign.name}">•••</button></td>

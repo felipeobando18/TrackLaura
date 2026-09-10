@@ -5,6 +5,12 @@ const LEAD_ACTION_TYPES = new Set([
   'offsite_conversion.fb_pixel_lead',
   'complete_registration'
 ]);
+const FOLLOWER_ACTION_TYPES = new Set([
+  'follow',
+  'page_follow',
+  'onsite_conversion.page_follow',
+  'like'
+]);
 
 function json(res, status, body) {
   res.status(status).json(body);
@@ -27,9 +33,15 @@ function getLeadCount(actions = []) {
     .reduce((total, action) => total + Number(action.value || 0), 0);
 }
 
-function getCostPerLead(row, leads) {
-  const leadCost = (row.cost_per_action_type || []).find((action) => LEAD_ACTION_TYPES.has(action.action_type));
-  return Number(leadCost?.value || (leads ? Number(row.spend || 0) / leads : 0));
+function getFollowerCount(actions = []) {
+  return actions
+    .filter((action) => FOLLOWER_ACTION_TYPES.has(action.action_type))
+    .reduce((total, action) => total + Number(action.value || 0), 0);
+}
+
+function getCostPerResult(row, result, actionTypes) {
+  const resultCost = (row.cost_per_action_type || []).find((action) => actionTypes.has(action.action_type));
+  return Number(resultCost?.value || (result ? Number(row.spend || 0) / result : 0));
 }
 
 module.exports = async function handler(req, res) {
@@ -85,12 +97,19 @@ module.exports = async function handler(req, res) {
 
     const campaigns = (payload.data || []).map((row) => {
       const leads = getLeadCount(row.actions);
+      const isFollowerCampaign = (row.campaign_name || '').toLowerCase().includes('dcontenido');
+      const result = isFollowerCampaign ? getFollowerCount(row.actions) : leads;
+      const cost = isFollowerCampaign
+        ? getCostPerResult(row, result, FOLLOWER_ACTION_TYPES)
+        : getCostPerResult(row, result, LEAD_ACTION_TYPES);
       return {
         name: row.campaign_name || 'Campaña sin nombre',
-        conversion: 'Captación de leads',
+        conversion: isFollowerCampaign ? 'Captación de seguidores' : 'Captación de leads',
         impressions: Number(row.impressions || 0),
-        leads,
-        cpl: getCostPerLead(row, leads),
+        leads: result,
+        resultLabel: isFollowerCampaign ? 'Seguidores' : 'Leads',
+        costLabel: isFollowerCampaign ? 'Costo / seguidor' : 'CPL',
+        cpl: cost,
         spend: Number(row.spend || 0),
         symbol: '↗',
         tone: ''
