@@ -6,13 +6,6 @@ const accountData = {
       { name: 'Checklist · Captación Q3', conversion: 'Formulario instantáneo', impressions: '74,920', leads: '35', cpl: '$25.03', spend: '$876', symbol: '↗', tone: '' }
     ]
   },
-  'Sculptor clinic': {
-    leads: '642', cpl: '$7.16', spend: '$4,594', daily: '92', campaigns: [
-      { name: 'Consulta inicial · Tratamientos', conversion: 'Formulario instantáneo', impressions: '390,210', leads: '421', cpl: '$6.84', spend: '$2,879', symbol: '✦', tone: '' },
-      { name: 'Valoración gratuita', conversion: 'Formulario instantáneo', impressions: '208,430', leads: '176', cpl: '$7.92', spend: '$1,394', symbol: '◈', tone: 'coral' },
-      { name: 'Guía de cuidados', conversion: 'Formulario instantáneo', impressions: '86,105', leads: '45', cpl: '$7.13', spend: '$321', symbol: '↗', tone: 'yellow' }
-    ]
-  }
 };
 
 const rows = document.querySelector('#campaignRows');
@@ -45,6 +38,7 @@ function applyAccountData(data) {
   };
   const current = accountData[activeAccount];
   document.querySelector('#totalLeads').textContent = current.leads;
+  document.querySelector('#summaryLeads').textContent = current.leads;
   document.querySelector('#dailyLeads').textContent = current.daily;
   document.querySelector('.metric-card:nth-child(2) .metric-value').textContent = current.cpl;
   document.querySelector('.metric-card:nth-child(3) .metric-value').textContent = current.spend;
@@ -133,6 +127,7 @@ document.querySelectorAll('.account-option').forEach((option) => {
     activeAccount = option.dataset.account;
     const data = accountData[activeAccount];
     document.querySelector('#totalLeads').textContent = data.leads;
+    document.querySelector('#summaryLeads').textContent = data.leads;
     document.querySelector('#dailyLeads').textContent = data.daily;
     document.querySelector('.metric-card:nth-child(2) .metric-value').textContent = data.cpl;
     document.querySelector('.metric-card:nth-child(3) .metric-value').textContent = data.spend;
