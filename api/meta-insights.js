@@ -1,18 +1,18 @@
 const GRAPH_VERSION = 'v20.0';
-const LEAD_ACTION_TYPES = new Set([
+const LEAD_ACTION_TYPES = [
   'lead',
   'onsite_conversion.lead',
   'offsite_conversion.fb_pixel_lead',
   'complete_registration'
-]);
-const INSTAGRAM_VISIT_ACTION_TYPES = new Set([
+];
+const INSTAGRAM_VISIT_ACTION_TYPES = [
   'landing_page_view',
   'page_view',
   'onsite_conversion.page_view',
   'instagram_profile_visit',
   'onsite_conversion.instagram_profile_visit',
   'offsite_conversion.instagram_profile_visit'
-]);
+];
 
 function json(res, status, body) {
   res.status(status).json(body);
@@ -30,19 +30,24 @@ function getDateRange(query) {
 }
 
 function getLeadCount(actions = []) {
-  return actions
-    .filter((action) => LEAD_ACTION_TYPES.has(action.action_type))
-    .reduce((total, action) => total + Number(action.value || 0), 0);
+  return getPrimaryActionCount(actions, LEAD_ACTION_TYPES);
 }
 
 function getInstagramVisitCount(actions = []) {
-  return actions
-    .filter((action) => INSTAGRAM_VISIT_ACTION_TYPES.has(action.action_type))
-    .reduce((total, action) => total + Number(action.value || 0), 0);
+  return getPrimaryActionCount(actions, INSTAGRAM_VISIT_ACTION_TYPES);
+}
+
+function getPrimaryActionCount(actions, actionTypes) {
+  const action = actionTypes
+    .map((actionType) => actions.find((item) => item.action_type === actionType))
+    .find(Boolean);
+  return Number(action?.value || 0);
 }
 
 function getCostPerResult(row, result, actionTypes) {
-  const resultCost = (row.cost_per_action_type || []).find((action) => actionTypes.has(action.action_type));
+  const resultCost = actionTypes
+    .map((actionType) => (row.cost_per_action_type || []).find((action) => action.action_type === actionType))
+    .find(Boolean);
   return Number(resultCost?.value || (result ? Number(row.spend || 0) / result : 0));
 }
 
