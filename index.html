@@ -62,6 +62,7 @@
               <option value="custom">Personalizado</option>
             </select>
             <span class="select-arrow">⌄</span>
+            <button class="refresh-button" id="refreshData" type="button" aria-label="Actualizar datos" title="Actualizar datos">↻</button>
             <div class="custom-dates" id="customDates" hidden>
               <label>Desde <input id="dateStart" type="date" value="2024-09-02" /></label>
               <span>→</span>
@@ -75,7 +76,7 @@
           <article class="metric-card featured">
             <div class="metric-top"><span class="metric-label">LEADS TOTALES</span><span class="metric-icon">↗</span></div>
             <div class="metric-value" id="totalLeads">1,284</div>
-            <div class="metric-bottom"><span class="trend positive">↑ 18.6%</span><span class="comparison">vs. periodo anterior</span></div>
+            <div class="metric-bottom"><span class="trend positive">↑ 18.6%</span><span class="comparison" id="leadsPeriodLabel">periodo seleccionado</span></div>
             <div class="sparkline teal"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
           </article>
           <article class="metric-card">

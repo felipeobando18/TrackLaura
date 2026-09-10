@@ -23,6 +23,7 @@ let dataSource = 'demo';
 
 const formatNumber = (value) => new Intl.NumberFormat('en-US').format(Number(value || 0));
 const formatMoney = (value) => `$${Number(value || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const rangeLabels = { '7': 'últimos 7 días', '14': 'últimos 14 días', '30': 'últimos 30 días', today: 'hoy', custom: 'periodo personalizado' };
 const demoDaily = [
   { date: '2024-09-02', leads: 38, spend: 42 }, { date: '2024-09-03', leads: 44, spend: 47 },
   { date: '2024-09-04', leads: 31, spend: 39 }, { date: '2024-09-05', leads: 52, spend: 55 },
@@ -115,6 +116,11 @@ function getSelectedDays() {
   return Math.round((end - start) / 86400000) + 1;
 }
 
+function updateLeadsPeriodLabel() {
+  const label = document.querySelector('#leadsPeriodLabel');
+  if (label) label.textContent = rangeLabels[document.querySelector('#dateRange').value];
+}
+
 async function loadMetaInsights() {
   const params = new URLSearchParams({ account: activeAccount });
   const range = document.querySelector('#dateRange').value;
@@ -163,10 +169,10 @@ function renderCampaigns() {
 search.addEventListener('input', renderCampaigns);
 
 document.querySelector('#dateRange').addEventListener('change', (event) => {
-  const rangeLabels = { '7': '7 días', '14': '14 días', '30': '30 días', today: 'hoy', custom: 'periodo personalizado' };
   document.querySelector('.date-note').textContent = `Datos atribuidos según ventana de Ads Manager · ${rangeLabels[event.target.value]}`;
   document.querySelector('#customDates').hidden = event.target.value !== 'custom';
   showToast(`Rango actualizado: ${rangeLabels[event.target.value]}`);
+  updateLeadsPeriodLabel();
   if (event.target.value !== 'custom') loadMetaInsights();
 });
 
@@ -180,8 +186,18 @@ document.querySelector('#applyDates').addEventListener('click', () => {
   const format = (date) => new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: 'short' }).format(new Date(`${date}T12:00:00`)).toUpperCase();
   document.querySelector('.date-note').textContent = `Datos atribuidos según ventana de Ads Manager · ${format(start)} – ${format(end)}`;
   document.querySelector('#dateHeading').textContent = `${format(start)} – ${format(end)}`;
+  document.querySelector('#leadsPeriodLabel').textContent = `${format(start)} – ${format(end)}`;
   showToast('Periodo personalizado aplicado');
   loadMetaInsights();
+});
+
+document.querySelector('#refreshData').addEventListener('click', async (event) => {
+  const button = event.currentTarget;
+  button.classList.add('is-refreshing');
+  showToast('Actualizando datos de Meta Ads...');
+  await loadMetaInsights();
+  button.classList.remove('is-refreshing');
+  showToast(dataSource === 'meta' ? 'Datos actualizados' : 'No se pudo actualizar Meta Ads');
 });
 
 document.querySelectorAll('.account-option').forEach((option) => {
@@ -222,4 +238,5 @@ function showToast(message) {
 
 renderCampaigns();
 renderChart();
+updateLeadsPeriodLabel();
 loadMetaInsights();
