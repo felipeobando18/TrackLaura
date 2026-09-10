@@ -52,6 +52,9 @@ module.exports = async function handler(req, res) {
   }
 
   const account = accounts.find((item) => item.name === requestedAccount) || accounts[0];
+  if (requestedAccount && !accounts.some((item) => item.name === requestedAccount)) {
+    return json(res, 503, { error: `Account ${requestedAccount} is not configured`, demo: true });
+  }
   if (!account?.id) return json(res, 400, { error: 'No advertising account configured' });
 
   const params = new URLSearchParams({
