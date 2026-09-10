@@ -110,12 +110,12 @@
                 <div class="grid-lines"><i></i><i></i><i></i><i></i><i></i><i></i></div>
                 <svg class="chart-svg" viewBox="0 0 800 260" preserveAspectRatio="none" aria-label="Gráfico de leads por día">
                   <defs><linearGradient id="areaFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#00a99d" stop-opacity=".22"/><stop offset="1" stop-color="#00a99d" stop-opacity="0"/></linearGradient></defs>
-                  <path class="chart-area-fill" d="M0,190 C40,180 54,198 92,162 S150,175 182,140 S220,154 252,132 S300,150 330,100 S380,125 410,108 S450,126 485,85 S525,112 560,92 S595,104 630,64 S680,83 710,48 S760,66 800,30 L800,260 L0,260 Z" />
-                  <path class="chart-line secondary-line" d="M0,220 C55,214 60,226 112,198 S180,210 225,187 S290,197 332,175 S390,190 430,164 S488,177 530,149 S590,166 630,133 S700,147 760,118 S780,121 800,105" />
-                  <path class="chart-line main-line" d="M0,190 C40,180 54,198 92,162 S150,175 182,140 S220,154 252,132 S300,150 330,100 S380,125 410,108 S450,126 485,85 S525,112 560,92 S595,104 630,64 S680,83 710,48 S760,66 800,30" />
-                  <circle cx="630" cy="64" r="5" class="chart-point"/><circle cx="800" cy="30" r="5" class="chart-point"/>
+                  <path class="chart-area-fill" id="chartAreaFill" d="" />
+                  <path class="chart-line secondary-line" id="spendLine" d="" />
+                  <path class="chart-line main-line" id="leadsLine" d="" />
+                  <g id="chartPoints"></g>
                 </svg>
-                <div class="x-axis"><span>02 SEP</span><span>03 SEP</span><span>04 SEP</span><span>05 SEP</span><span>06 SEP</span><span>07 SEP</span><span>08 SEP</span></div>
+                <div class="x-axis" id="chartLabels"></div>
               </div>
             </div>
           </article>

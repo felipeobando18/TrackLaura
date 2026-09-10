@@ -23,9 +23,49 @@ let dataSource = 'demo';
 
 const formatNumber = (value) => new Intl.NumberFormat('en-US').format(Number(value || 0));
 const formatMoney = (value) => `$${Number(value || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const demoDaily = [
+  { date: '2024-09-02', leads: 38, spend: 42 }, { date: '2024-09-03', leads: 44, spend: 47 },
+  { date: '2024-09-04', leads: 31, spend: 39 }, { date: '2024-09-05', leads: 52, spend: 55 },
+  { date: '2024-09-06', leads: 46, spend: 51 }, { date: '2024-09-07', leads: 61, spend: 59 },
+  { date: '2024-09-08', leads: 58, spend: 64 }
+];
 
 function currentCampaigns() {
   return accountData[activeAccount].campaigns;
+}
+
+function renderChart(daily = demoDaily) {
+  const leadsLine = document.querySelector('#leadsLine');
+  const spendLine = document.querySelector('#spendLine');
+  const areaFill = document.querySelector('#chartAreaFill');
+  const points = document.querySelector('#chartPoints');
+  const labels = document.querySelector('#chartLabels');
+  if (!leadsLine || !spendLine || !areaFill || !points || !labels || !daily.length) return;
+
+  const chartWidth = 800;
+  const chartHeight = 225;
+  const maxLeads = Math.max(...daily.map((item) => Number(item.leads || 0)), 1);
+  const maxSpend = Math.max(...daily.map((item) => Number(item.spend || 0)), 1);
+  const toPoint = (item, index, max) => {
+    const x = daily.length === 1 ? chartWidth / 2 : (index / (daily.length - 1)) * chartWidth;
+    const y = chartHeight - (Number(item) / max) * (chartHeight - 18);
+    return [x, y];
+  };
+  const makePath = (key, max) => daily.map((item, index) => {
+    const [x, y] = toPoint(item[key], index, max);
+    return `${index === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+
+  const leadsPath = makePath('leads', maxLeads);
+  leadsLine.setAttribute('d', leadsPath);
+  spendLine.setAttribute('d', makePath('spend', maxSpend));
+  const lastPoint = toPoint(daily[daily.length - 1].leads, daily.length - 1, maxLeads);
+  areaFill.setAttribute('d', `${leadsPath} L${lastPoint[0].toFixed(1)},${chartHeight} L0,${chartHeight} Z`);
+  points.innerHTML = daily.map((item, index) => {
+    const [x, y] = toPoint(item.leads, index, maxLeads);
+    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" class="chart-point" />`;
+  }).join('');
+  labels.innerHTML = daily.map((item) => `<span>${new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: 'short' }).format(new Date(`${item.date}T12:00:00`)).toUpperCase()}</span>`).join('');
 }
 
 function applyAccountData(data) {
@@ -43,6 +83,7 @@ function applyAccountData(data) {
       spend: formatMoney(campaign.spend)
     }))
   };
+  renderChart(data.daily);
   const current = accountData[activeAccount];
   document.querySelector('#totalLeads').textContent = current.leads;
   document.querySelector('#summaryLeads').textContent = current.leads;
@@ -166,4 +207,5 @@ function showToast(message) {
 }
 
 renderCampaigns();
+renderChart();
 loadMetaInsights();

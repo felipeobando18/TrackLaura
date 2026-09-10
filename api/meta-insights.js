@@ -64,11 +64,24 @@ module.exports = async function handler(req, res) {
     time_range: JSON.stringify(getDateRange(req.query)),
     limit: '500'
   });
+  const dailyParams = new URLSearchParams({
+    access_token: token,
+    level: 'account',
+    fields: 'date_start,date_stop,impressions,spend,actions',
+    time_range: JSON.stringify(getDateRange(req.query)),
+    time_increment: '1',
+    limit: '500'
+  });
 
   try {
-    const response = await fetch(`https://graph.facebook.com/${GRAPH_VERSION}/${account.id}/insights?${params}`);
+    const [response, dailyResponse] = await Promise.all([
+      fetch(`https://graph.facebook.com/${GRAPH_VERSION}/${account.id}/insights?${params}`),
+      fetch(`https://graph.facebook.com/${GRAPH_VERSION}/${account.id}/insights?${dailyParams}`)
+    ]);
     const payload = await response.json();
+    const dailyPayload = await dailyResponse.json();
     if (!response.ok || payload.error) return json(res, response.status || 502, { error: payload.error?.message || 'Meta API request failed' });
+    if (!dailyResponse.ok || dailyPayload.error) return json(res, dailyResponse.status || 502, { error: dailyPayload.error?.message || 'Meta daily insights request failed' });
 
     const campaigns = (payload.data || []).map((row) => {
       const leads = getLeadCount(row.actions);
@@ -90,11 +103,19 @@ module.exports = async function handler(req, res) {
       spend: sum.spend + campaign.spend
     }), { impressions: 0, leads: 0, spend: 0 });
 
+    const daily = (dailyPayload.data || []).map((row) => ({
+      date: row.date_start,
+      leads: getLeadCount(row.actions),
+      impressions: Number(row.impressions || 0),
+      spend: Number(row.spend || 0)
+    }));
+
     return json(res, 200, {
       source: 'meta',
       account: account.name,
       range: getDateRange(req.query),
       campaigns,
+      daily,
       totals: { ...totals, cpl: totals.leads ? totals.spend / totals.leads : 0 }
     });
   } catch (error) {
